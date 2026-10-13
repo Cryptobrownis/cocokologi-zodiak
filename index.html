@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#170f2e" />
+  <meta name="description" content="Cek kecocokan zodiak pasangan dengan hasil kocak, bucin, dan animasi romantis." />
+  <title>Love Zodiac — Cek Kecocokan</title>
+  <style>
+    :root {
+      --bg: #100b20;
+      --panel: rgba(255,255,255,.09);
+      --line: rgba(255,255,255,.15);
+      --text: #fff8ff;
+      --muted: #c9bdd9;
+      --pink: #ff5ca8;
+      --purple: #a78bfa;
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; }
+    body {
+      margin: 0; min-height: 100vh; color: var(--text);
+      font-family: ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(ellipse at 10% 0%, rgba(255,92,168,.24), transparent 42%),
+        radial-gradient(ellipse at 95% 30%, rgba(139,92,246,.24), transparent 40%),
+        linear-gradient(160deg, #100b20, #1c1233 60%, #100b20);
+      overflow-x: hidden;
+    }
+    button, select { font: inherit; }
+    .wrap { width: min(100% - 28px, 520px); margin: 0 auto; padding: 28px 0 38px; position: relative; z-index: 1; }
+    .brand { text-align: center; margin-bottom: 22px; }
+    .logo { font-size: 2.35rem; filter: drop-shadow(0 5px 18px rgba(255,92,168,.45)); }
+    h1 { margin: 7px 0 8px; font-size: clamp(1.8rem, 8vw, 2.55rem); line-height: 1.05; letter-spacing: -.05em; }
+    h1 span { color: #ff8ec4; }
+    .subtitle { margin: 0 auto; max-width: 360px; color: var(--muted); font-size: .96rem; line-height: 1.55; }
+    .card {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 25px;
+      padding: 20px; box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    }
+    .couple { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: end; }
+    .field label { display: block; font-size: .88rem; font-weight: 750; margin: 0 0 8px 2px; }
+    .field select {
+      width: 100%; min-width: 0; color: white; background: #281a40;
+      border: 1px solid rgba(255,255,255,.2); border-radius: 14px; padding: 13px 10px;
+      outline: none; appearance: auto;
+    }
+    select:focus { border-color: #ff8ec4; box-shadow: 0 0 0 3px rgba(255,92,168,.15); }
+    option { background: #281a40; color: white; }
+    .heart-between { text-align: center; font-size: 1.45rem; padding-bottom: 11px; }
+    .hint { color: var(--muted); font-size: .78rem; margin: 14px 2px 0; line-height: 1.45; }
+    .main-btn {
+      width: 100%; margin-top: 18px; border: 0; border-radius: 15px; padding: 15px 16px;
+      color: #28112a; font-weight: 900; font-size: 1rem; cursor: pointer;
+      background: linear-gradient(100deg, #ff8ec4, #ffc6df 48%, #c4b5fd);
+      box-shadow: 0 9px 25px rgba(255,92,168,.23); transition: transform .18s, filter .18s;
+    }
+    .main-btn:active { transform: scale(.98); }
+    .result { display: none; margin-top: 18px; text-align: center; animation: pop .55s cubic-bezier(.2,.8,.2,1) both; }
+    .result.show { display: block; }
+    @keyframes pop { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .result-kicker { color: var(--muted); font-weight: 750; font-size: .8rem; text-transform: uppercase; letter-spacing: .13em; }
+    .pair-title { margin: 7px 0 0; font-size: 1.2rem; font-weight: 850; }
+    .meter {
+      width: 172px; height: 172px; margin: 19px auto 15px; border-radius: 50%;
+      display: grid; place-items: center; position: relative;
+      background: conic-gradient(from -90deg, #ff75b7 var(--score), rgba(255,255,255,.11) 0);
+      box-shadow: 0 0 32px rgba(255,92,168,.17);
+    }
+    .meter::before { content: ""; position: absolute; inset: 10px; border-radius: 50%; background: #1b1230; }
+    .meter-inner { z-index: 1; }
+    .percent { font-size: 2.7rem; font-weight: 950; letter-spacing: -.07em; line-height: 1.1; }
+    .percent small { font-size: 1.1rem; letter-spacing: 0; }
+    .status { font-size: .78rem; color: #ffadd2; font-weight: 800; margin-top: 5px; }
+    .message {
+      background: rgba(255,255,255,.07); border: 1px solid var(--line); border-radius: 18px;
+      padding: 16px 14px; font-size: 1rem; line-height: 1.6; margin-top: 12px;
+    }
+    .message .emoji { display: block; font-size: 2rem; margin-bottom: 5px; }
+    .disclaimer { color: #b7a9c9; font-size: .72rem; line-height: 1.5; margin: 13px 3px 0; }
+    .secondary { background: transparent; color: white; border: 1px solid var(--line); box-shadow: none; }
+    .footer { text-align: center; color: #a99bbd; font-size: .75rem; margin-top: 22px; }
+    #effects { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+    .particle { position: absolute; top: -12vh; animation: fall linear forwards; user-select: none; will-change: transform; }
+    @keyframes fall { to { transform: translate3d(var(--drift), 115vh, 0) rotate(500deg); } }
+    .shake { animation: shake .42s ease-in-out; }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-4px); } 40%,80% { transform: translateX(4px); } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+    @media (max-width: 360px) { .wrap { width: calc(100% - 20px); padding-top: 20px; } .card { padding: 15px; } .couple { gap: 8px; } .field select { padding: 12px 6px; font-size: .88rem; } }
+  </style>
+</head>
+<body>
+  <div id="effects" aria-hidden="true"></div>
+  <main class="wrap">
+    <header class="brand">
+      <div class="logo" aria-hidden="true">💘</div>
+      <h1>Love <span>Zodiac</span></h1>
+      <p class="subtitle">Cek seberapa semesta merestui hubungan kalian. Siap-siap ketawa, salting, atau pura-pura kuat. 🥹</p>
+    </header>
+
+    <section class="card" aria-label="Form cek kecocokan zodiak">
+      <div class="couple">
+        <div class="field">
+          <label for="boy">🖤 Zodiak cowok</label>
+          <select id="boy">
+            <option value="">Pilih zodiak</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="girl">💗 Zodiak cewek</label>
+          <select id="girl">
+            <option value="">Pilih zodiak</option>
+          </select>
+        </div>
+      </div>
+      <p class="hint">Pilih zodiak kalian, lalu biarkan kalkulator cinta mengeluarkan vonisnya. Hasil ini hiburan ya, bukan ramalan ilmiah. ✨</p>
+      <button class="main-btn" id="checkBtn" type="button">💞 CEK KEC0C0KAN</button>
+
+      <section class="result" id="result" aria-live="polite">
+        <p class="result-kicker">Hasil kecocokan kalian</p>
+        <p class="pair-title" id="pairTitle"></p>
+        <div class="meter" id="meter" style="--score: 0%">
+          <div class="meter-inner">
+            <div class="percent"><span id="percent">0</span><small>%</small></div>
+            <div class="status" id="status"></div>
+          </div>
+        </div>
+        <div class="message">
+          <span class="emoji" id="resultEmoji"></span>
+          <div id="messageText"></div>
+        </div>
+        <p class="disclaimer" id="disclaimer"></p>
+        <button class="main-btn secondary" id="againBtn" type="button">🔄 CEK PASANGAN LAIN</button>
+      </section>
+    </section>
+    <footer class="footer">Made with 💗 untuk kaum bucin & kaum badut.</footer>
+  </main>
+
+  <script>
+    const signs = [
+      ["aries","Aries","♈"], ["taurus","Taurus","♉"], ["gemini","Gemini","♊"],
+      ["cancer","Cancer","♋"], ["leo","Leo","♌"], ["virgo","Virgo","♍"],
+      ["libra","Libra","♎"], ["scorpio","Scorpio","♏"], ["sagittarius","Sagittarius","♐"],
+      ["capricorn","Capricorn","♑"], ["aquarius","Aquarius","♒"], ["pisces","Pisces","♓"]
+    ];
+    const boy = document.getElementById("boy");
+    const girl = document.getElementById("girl");
+    signs.forEach(([value, name, symbol]) => {
+      boy.add(new Option(`${symbol} ${name}`, value));
+      girl.add(new Option(`${symbol} ${name}`, value));
+    });
+
+    const lowMessages = {
+      10: ["💀","Kalian cocoknya jadi mutual yang saling lihat story doang. Chat dibalas? Nanti dulu, lagi sibuk menyembuhkan trauma."],
+      20: ["🥀","Ini bukan red flag lagi, ini parade bendera merah. Semesta aja sampai bilang: 'Bestie, are you sure?'"],
+      30: ["😭","Satu ngejar, satu menghilang. Hubungan kalian kayak sinyal di basement: ada harapan, tapi sering hilang."],
+      40: ["🫠","Cinta boleh diperjuangkan, tapi jangan sampai harga diri ikut lembur tiap malam. Tolong evaluasi, bestie." ]
+    };
+    const highMessages = {
+      50: ["🤏💗","Cocok tipis-tipis, bestie. Ada chemistry, tapi chat 'terserah' masih bisa memicu rapat darurat tiga jam."],
+      60: ["🥰","Lumayan cocok! Sudah mulai salting cuma gara-gara dibalas 'wkwk'. Pelan-pelan, jangan langsung bikin nama anak."],
+      70: ["💞","Waduh, mulai bucin nih. Notifikasi dia masuk, senyum kalian langsung online. Teman-teman mulai geleng-geleng."],
+      80: ["😍","Cocok banget! Dia bilang 'udah makan?' kalian dengarnya seperti puisi cinta pemenang penghargaan."],
+      90: ["💍","BUCIN AKUT TERDETEKSI! Baru telat balas lima menit sudah kangen. Playlist galau pun berganti jadi lagu nikahan."],
+      100: ["👑💘","JODOH CORE! Dia kentut pun mungkin kalian bilang, 'Aduh, lucu banget.' Semesta jadi WO, Cupid jadi penghulu. BUCIN LEVEL DEWA!"]
+    };
+
+    // Skor deterministik: pasangan zodiak yang sama akan selalu mendapat skor yang sama.
+    function getScore(a, b) {
+      const pair = [a, b].sort().join("-");
+      let hash = 0;
+      for (let i = 0; i < pair.length; i++) hash = (hash * 31 + pair.charCodeAt(i)) >>> 0;
+      const scores = [10,20,30,40,50,60,70,80,90,100];
+      return scores[hash % scores.length];
+    }
+    function getPairName(value) { return signs.find(s => s[0] === value); }
+    function rain(type) {
+      const holder = document.getElementById("effects");
+      holder.innerHTML = "";
+      const isSad = type === "sad";
+      const pieces = isSad ? ["💧","💧","🥀","☔"] : ["💗","💖","💘","💕","💜","💛","💚","💙","🧡"];
+      for (let i = 0; i < 38; i++) {
+        const p = document.createElement("span");
+        p.className = "particle";
+        p.textContent = pieces[Math.floor(Math.random() * pieces.length)];
+        p.style.left = Math.random() * 100 + "%";
+        p.style.fontSize = (isSad ? 12 + Math.random() * 13 : 14 + Math.random() * 17) + "px";
+        p.style.opacity = (.45 + Math.random() * .55).toFixed(2);
+        p.style.animationDuration = (3.5 + Math.random() * 4.5) + "s";
+        p.style.animationDelay = (Math.random() * 1.5) + "s";
+        p.style.setProperty("--drift", (Math.random() * 150 - 75) + "px");
+        holder.appendChild(p);
+      }
+      window.setTimeout(() => { holder.innerHTML = ""; }, 9000);
+    }
+
+    document.getElementById("checkBtn").addEventListener("click", () => {
+      if (!boy.value || !girl.value) {
+        const card = document.querySelector(".card");
+        card.classList.remove("shake");
+        void card.offsetWidth;
+        card.classList.add("shake");
+        if (!boy.value) boy.focus(); else girl.focus();
+        return;
+      }
+      const score = getScore(boy.value, girl.value);
+      const b = getPairName(boy.value), g = getPairName(girl.value);
+      document.getElementById("pairTitle").textContent = `${b[2]} ${b[1]} × ${g[2]} ${g[1]}`;
+      document.getElementById("percent").textContent = score;
+      document.getElementById("meter").style.setProperty("--score", score + "%");
+      document.getElementById("status").textContent = score <= 40 ? "OUCH, RED FLAG 🚩" : score === 50 ? "COCOK TIPIS-TIPIS" : score <= 80 ? "MATCH ALERT 💞" : "BUCIN AKUT 💍";
+      const message = score <= 40 ? lowMessages[score] : highMessages[score];
+      document.getElementById("resultEmoji").textContent = message[0];
+      document.getElementById("messageText").textContent = message[1];
+      document.getElementById("disclaimer").textContent = score <= 40
+        ? "Tenang, ini cuma hiburan. Jangan putus beneran gara-gara website ya. Komunikasi tetap nomor satu. 🫶"
+        : "Ini cuma hiburan zodiak. Hubungan sehat tetap butuh komunikasi, rasa hormat, dan usaha dari dua pihak. 💗";
+      const result = document.getElementById("result");
+      result.classList.remove("show");
+      void result.offsetWidth;
+      result.classList.add("show");
+      rain(score <= 40 ? "sad" : "love");
+      result.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    document.getElementById("againBtn").addEventListener("click", () => {
+      boy.value = "";
+      girl.value = "";
+      document.getElementById("result").classList.remove("show");
+      document.getElementById("effects").innerHTML = "";
+      boy.focus();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  </script>
+</body>
+</html>
